@@ -1,0 +1,9 @@
+id: s1z6c4yum9jkp4e3l6fi0rvurwt4nndpg0ylx43oxasq1e4u
+name: tls
+main: tls.zig
+license: MIT
+description: RFC8446 compliant TLS client
+root_dependencies:
+  - src: git https://github.com/nektro/zig-extras
+dependencies:
+  - src: git https://github.com/nektro/zig-extras
