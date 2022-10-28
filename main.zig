@@ -197,32 +197,21 @@ pub fn testSite(alloc: std.mem.Allocator, hostname: []const u8) !void {
             const early_secret = suite.hdkf.extract(&[_]u8{}, &std.mem.zeroes([suite.hash.digest_length]u8)); // good
             const empty_hash = extras.hashBytes(suite.hash, ""); // good
             const derived_secret = suite.hdfk_expand_label(early_secret, "derived", empty_hash, 48); // good
-            const handshake_secret = suite.hdkf.extract(&derived_secret, &shared_secret);
-            const client_secret = suite.hdfk_expand_label(handshake_secret, "c hs traffic", hello_hash, 48);
-            const server_secret = suite.hdfk_expand_label(handshake_secret, "s hs traffic", hello_hash, 48);
+            const handshake_secret = suite.hdkf.extract(&derived_secret, &shared_secret); // good
+            const client_secret = suite.hdfk_expand_label(handshake_secret, "c hs traffic", hello_hash, 48); // good
+            const server_secret = suite.hdfk_expand_label(handshake_secret, "s hs traffic", hello_hash, 48); // good
             calc = .{
                 .client = .{
                     .secret = client_secret,
-                    .key = suite.hdfk_expand_label(client_secret, "key", "", 32),
-                    .iv = suite.hdfk_expand_label(client_secret, "iv", "", 12),
+                    .key = suite.hdfk_expand_label(client_secret, "key", "", 32), // good
+                    .iv = suite.hdfk_expand_label(client_secret, "iv", "", 12), // good
                 },
                 .server = .{
                     .secret = server_secret,
-                    .key = suite.hdfk_expand_label(server_secret, "key", "", 32),
-                    .iv = suite.hdfk_expand_label(server_secret, "iv", "", 12),
+                    .key = suite.hdfk_expand_label(server_secret, "key", "", 32), // good
+                    .iv = suite.hdfk_expand_label(server_secret, "iv", "", 12), // good
                 },
             };
-            std.log.debug("early_secret: {s}", .{std.fmt.fmtSliceHexLower(&early_secret)});
-            std.log.debug("empty_hash: {s}", .{std.fmt.fmtSliceHexLower(&empty_hash)});
-            std.log.debug("hello_hash: {s}", .{std.fmt.fmtSliceHexLower(&hello_hash)});
-            std.log.debug("derived_secret: {s}", .{std.fmt.fmtSliceHexLower(&derived_secret)});
-            std.log.debug("hssec: {s}", .{std.fmt.fmtSliceHexLower(&handshake_secret)});
-            std.log.debug("ssec: {s}", .{std.fmt.fmtSliceHexLower(&server_secret)});
-            std.log.debug("csec: {s}", .{std.fmt.fmtSliceHexLower(&client_secret)});
-            std.log.debug("skey: {s}", .{std.fmt.fmtSliceHexLower(&calc.server.key)});
-            std.log.debug("siv: {s}", .{std.fmt.fmtSliceHexLower(&calc.server.iv)});
-            std.log.debug("ckey: {s}", .{std.fmt.fmtSliceHexLower(&calc.client.key)});
-            std.log.debug("civ: {s}", .{std.fmt.fmtSliceHexLower(&calc.client.iv)});
         }
     }
 
