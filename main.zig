@@ -193,7 +193,6 @@ pub fn testSite(alloc: std.mem.Allocator, hostname: []const u8) !void {
         const suite = @field(tls.ciphersuites, decl.name);
         if (suite.tag_int == @enumToInt(server_ciphersuite)) {
             const hello_hash = hello_hasher.final(suite.hash);
-            // const hello_hash = "\xe0\x5f\x64\xfc\xd0\x82\xbd\xb0\xdc\xe4\x73\xad\xf6\x69\xc2\x76\x9f\x25\x7a\x1c\x75\xa5\x1b\x78\x87\x46\x8b\x5e\x0e\x7a\x7d\xe4\xf4\xd3\x45\x55\x11\x20\x77\xf1\x6e\x07\x90\x19\xd5\xa8\x45\xbd".*;
             const early_secret = suite.hdkf.extract(&[_]u8{}, &std.mem.zeroes([suite.hash.digest_length]u8)); // good
             const empty_hash = extras.hashBytes(suite.hash, ""); // good
             const derived_secret = suite.hdfk_expand_label(early_secret, "derived", empty_hash, 48); // good
