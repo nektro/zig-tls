@@ -133,18 +133,18 @@ fn Ciphersuite(comptime ptag: [2]u8, comptime Hash: type, comptime Aead: type) t
         pub const aead = Aead;
         pub const hash = Hash;
         pub const hmac = std.crypto.auth.hmac.Hmac(hash);
-        pub const hdkf = std.crypto.kdf.hkdf.Hkdf(hmac);
+        pub const hkdf = std.crypto.kdf.hkdf.Hkdf(hmac);
 
-        pub fn hdfk_expand(prk: [hmac.mac_length]u8, ctx: []const u8, comptime length: u16) [length]u8 {
+        pub fn hkdf_expand(prk: [hmac.mac_length]u8, ctx: []const u8, comptime length: u16) [length]u8 {
             var out: [length]u8 = undefined;
-            hdkf.expand(&out, ctx, prk);
+            hkdf.expand(&out, ctx, prk);
             return out;
         }
 
-        pub fn hdfk_expand_label(secret: [hmac.mac_length]u8, comptime label: []const u8, context: anytype, comptime length: u16) [length]u8 {
+        pub fn hkdf_expand_label(secret: [hmac.mac_length]u8, comptime label: []const u8, context: anytype, comptime length: u16) [length]u8 {
             const labellen = @intCast(u8, label.len + 6);
             const contextlen = @intCast(u8, context.len);
-            return hdfk_expand(secret, std.mem.toBytes(@byteSwap(length)) ++ [_]u8{labellen} ++ "tls13 " ++ label ++ [_]u8{contextlen} ++ context, length);
+            return hkdf_expand(secret, std.mem.toBytes(@byteSwap(length)) ++ [_]u8{labellen} ++ "tls13 " ++ label ++ [_]u8{contextlen} ++ context, length);
         }
     };
 }

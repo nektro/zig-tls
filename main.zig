@@ -193,22 +193,22 @@ pub fn testSite(alloc: std.mem.Allocator, hostname: []const u8) !void {
         const suite = @field(tls.ciphersuites, decl.name);
         if (suite.tag_int == @enumToInt(server_ciphersuite)) {
             const hello_hash = hello_hasher.final(suite.hash);
-            const early_secret = suite.hdkf.extract(&[_]u8{}, &std.mem.zeroes([suite.hash.digest_length]u8)); // good
+            const early_secret = suite.hkdf.extract(&[_]u8{}, &std.mem.zeroes([suite.hash.digest_length]u8)); // good
             const empty_hash = extras.hashBytes(suite.hash, ""); // good
-            const derived_secret = suite.hdfk_expand_label(early_secret, "derived", empty_hash, 48); // good
-            const handshake_secret = suite.hdkf.extract(&derived_secret, &shared_secret); // good
-            const client_secret = suite.hdfk_expand_label(handshake_secret, "c hs traffic", hello_hash, 48); // good
-            const server_secret = suite.hdfk_expand_label(handshake_secret, "s hs traffic", hello_hash, 48); // good
+            const derived_secret = suite.hkdf_expand_label(early_secret, "derived", empty_hash, 48); // good
+            const handshake_secret = suite.hkdf.extract(&derived_secret, &shared_secret); // good
+            const client_secret = suite.hkdf_expand_label(handshake_secret, "c hs traffic", hello_hash, 48); // good
+            const server_secret = suite.hkdf_expand_label(handshake_secret, "s hs traffic", hello_hash, 48); // good
             calc = .{
                 .client = .{
                     .secret = client_secret,
-                    .key = suite.hdfk_expand_label(client_secret, "key", "", 32), // good
-                    .iv = suite.hdfk_expand_label(client_secret, "iv", "", 12), // good
+                    .key = suite.hkdf_expand_label(client_secret, "key", "", 32), // good
+                    .iv = suite.hkdf_expand_label(client_secret, "iv", "", 12), // good
                 },
                 .server = .{
                     .secret = server_secret,
-                    .key = suite.hdfk_expand_label(server_secret, "key", "", 32), // good
-                    .iv = suite.hdfk_expand_label(server_secret, "iv", "", 12), // good
+                    .key = suite.hkdf_expand_label(server_secret, "key", "", 32), // good
+                    .iv = suite.hkdf_expand_label(server_secret, "iv", "", 12), // good
                 },
             };
         }
