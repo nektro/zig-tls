@@ -229,7 +229,7 @@ pub fn testSite(alloc: std.mem.Allocator, hostname: []const u8) !void {
                 }
                 std.log.debug("nonce: {s}", .{std.fmt.fmtSliceHexLower(&nonce)});
 
-                const actual = try tls.readWrappedRecord(suite, r, &msg_buf, nonce, shared_secret);
+                const actual = try tls.readWrappedRecord(suite, r, &msg_buf, nonce, calc.server.key);
                 assert(@intToEnum(tls.ContentType, actual[actual.len - 1]) == .handshake);
 
                 var handshake_buf = std.io.fixedBufferStream(actual[0 .. actual.len - 1]);
