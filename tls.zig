@@ -403,7 +403,7 @@ pub const HelloHasher = struct {
 
     pub fn Writer(comptime W: type) type {
         return struct {
-            const Ctx = std.meta.Tuple(.{ *HelloHasher, W });
+            const Ctx = std.meta.Tuple(&.{ *HelloHasher, W });
 
             pub fn init(h: *HelloHasher, w: W) std.io.Writer(Ctx, W.Error, write) {
                 return .{ .context = .{ h, w } };
@@ -418,7 +418,7 @@ pub const HelloHasher = struct {
 
     pub fn Reader(comptime R: type) type {
         return struct {
-            const Ctx = std.meta.Tuple(.{ *HelloHasher, R });
+            const Ctx = std.meta.Tuple(&.{ *HelloHasher, R });
 
             pub fn init(h: *HelloHasher, r: R) std.io.Reader(Ctx, R.Error, read) {
                 return .{ .context = .{ h, r } };
