@@ -166,11 +166,7 @@ pub fn testSite(alloc: std.mem.Allocator, hostname: string) !void {
     std.log.debug("<- server_ciphersuite: {s}", .{@tagName(server_ciphersuite)});
 
     // shared secret
-    const shared_secret = blk: {
-        const curve_key = std.crypto.dh.X25519.Curve.fromBytes(pair.secret_key);
-        const curve_mul = try curve_key.mul(server_publickey);
-        break :blk curve_mul.toBytes();
-    };
+    const shared_secret = try std.crypto.dh.X25519.scalarmult(pair.secret_key, server_publickey);
     std.log.debug("<-> shared secret: {s}", .{std.fmt.fmtSliceHexLower(&shared_secret)});
 
     { // server change cipher spec
