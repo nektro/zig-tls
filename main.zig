@@ -1,4 +1,5 @@
 const std = @import("std");
+const string = []const u8;
 const extras = @import("extras");
 const tls = @import("tls");
 const assert = std.debug.assert;
@@ -48,7 +49,7 @@ pub fn main() !void {
     try testSite(alloc, "tls13.xargs.org");
 }
 
-pub fn testSite(alloc: std.mem.Allocator, hostname: []const u8) !void {
+pub fn testSite(alloc: std.mem.Allocator, hostname: string) !void {
     std.log.debug("{s}", .{hostname});
     const stream = try std.net.tcpConnectToHost(alloc, hostname, 443);
     defer stream.close();
