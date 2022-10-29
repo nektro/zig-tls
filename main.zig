@@ -223,7 +223,6 @@ pub fn testSite(alloc: std.mem.Allocator, hostname: string) !void {
                     const i = @intCast(u6, index);
                     nonce[nonce.len - 1 - i] ^= @truncate(u8, (read_sequence_number >> (i * 8)) & 0xFF);
                 }
-                std.log.debug("nonce: {s}", .{std.fmt.fmtSliceHexLower(&nonce)});
 
                 const actual = try tls.readWrappedRecord(suite, r, &msg_buf, nonce, calc.server.key);
                 assert(@intToEnum(tls.ContentType, actual[actual.len - 1]) == .handshake);
