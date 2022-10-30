@@ -3,6 +3,7 @@ const string = []const u8;
 const extras = @import("extras");
 const Sha256 = std.crypto.hash.sha2.Sha256;
 const Sha384 = std.crypto.hash.sha2.Sha384;
+const tls = @This();
 
 pub const ContentType = enum(u8) {
     invalid = 0,
@@ -12,29 +13,7 @@ pub const ContentType = enum(u8) {
     application_data = 23,
 };
 
-pub const HandshakeType = enum(u8) {
-    hello_request_RESERVED = 0,
-    client_hello = 1,
-    server_hello = 2,
-    hello_verify_request_RESERVED = 3,
-    new_session_ticket = 4,
-    end_of_early_data = 5,
-    hello_retry_request_RESERVED = 6,
-    encrypted_extensions = 8,
-    certificate = 11,
-    server_key_exchange_RESERVED = 12,
-    certificate_request = 13,
-    server_hello_done_RESERVED = 14,
-    certificate_verify = 15,
-    client_key_exchange_RESERVED = 16,
-    finished = 20,
-    certificate_url_RESERVED = 21,
-    certificate_status_RESERVED = 22,
-    supplemental_data_RESERVED = 23,
-    key_update = 24,
-    message_hash = 254,
-};
-
+pub usingnamespace @import("./handshake.zig");
 pub const ExtensionType = enum(u16) {
     server_name = 0,
     max_fragment_length = 1,
@@ -331,7 +310,7 @@ pub fn write_client_hello(src_w: anytype, client_random: [32]u8, session_id: [32
     try src_w.writeIntBig(u16, extensions_len + header_len + 4); // bytes of handshake message follows
 
     const w = HelloHasher.Writer(@TypeOf(src_w)).init(hasher, src_w);
-    try extras.writeEnumBig(w, HandshakeType, .client_hello);
+    try extras.writeEnumBig(w, tls.HandshakeType, .client_hello);
     try w.writeIntBig(u24, extensions_len + header_len); // bytes of client hello data follows
 
     // A protocol version of "3,3" (meaning TLS 1.2) is given. Because middleboxes have been created and widely deployed
