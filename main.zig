@@ -148,7 +148,7 @@ pub fn testSite(alloc: std.mem.Allocator, hostname: string) !void {
                                 }
                             },
                             .key_share => {
-                                switch (@intToEnum(tls.NamedGroup, try ext_r.readIntBig(u16))) {
+                                switch (try extras.readEnumBig(ext_r, tls.NamedGroup)) {
                                     .x25519 => {
                                         std.debug.assert(try extras.readExpected(ext_r, &.{ 0x0, 0x20 }));
                                         server_publickey = try extras.readBytes(ext_r, 32);
@@ -230,7 +230,7 @@ pub fn testSite(alloc: std.mem.Allocator, hostname: string) !void {
                 var handshake_buf = std.io.fixedBufferStream(actual[0 .. actual.len - 1]);
                 const handshake_r = handshake_buf.reader();
 
-                switch (@intToEnum(tls.HandshakeType, try handshake_r.readByte())) {
+                switch (try extras.readEnumBig(handshake_r, tls.HandshakeType)) {
                     else => |val| std.debug.panic("TODO {s}", .{@tagName(val)}),
                 }
             }
