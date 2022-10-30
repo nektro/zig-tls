@@ -14,30 +14,7 @@ pub const ContentType = enum(u8) {
 };
 
 pub usingnamespace @import("./handshake.zig");
-pub const ExtensionType = enum(u16) {
-    server_name = 0,
-    max_fragment_length = 1,
-    status_request = 5,
-    supported_groups = 10,
-    signature_algorithms = 13,
-    use_srtp = 14,
-    heartbeat = 15,
-    application_layer_protocol_negotiation = 16,
-    signed_certificate_timestamp = 18,
-    client_certificate_type = 19,
-    server_certificate_type = 20,
-    padding = 21,
-    pre_shared_key = 41,
-    early_data = 42,
-    supported_versions = 43,
-    cookie = 44,
-    psk_key_exchange_modes = 45,
-    certificate_authorities = 47,
-    oid_filters = 48,
-    post_handshake_auth = 49,
-    signature_algorithms_cert = 50,
-    key_share = 51,
-};
+pub usingnamespace @import("./extension.zig");
 
 pub const SignatureScheme = enum(u16) {
     rsa_pkcs1_sha256 = 0x0401,
@@ -256,7 +233,7 @@ pub const Extension = union(enum) {
     }
 
     pub fn write(ext: Extension, w: anytype) !void {
-        try extras.writeEnumBig(w, ExtensionType, @as(ExtensionType, switch (ext) {
+        try extras.writeEnumBig(w, tls.ExtensionType, @as(tls.ExtensionType, switch (ext) {
             .supported_versions => .supported_versions,
             .signature_algorithms => .signature_algorithms,
             .supported_groups => .supported_groups,
