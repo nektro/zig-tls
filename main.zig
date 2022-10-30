@@ -210,7 +210,7 @@ pub fn testSite(alloc: std.mem.Allocator, hostname: string) !void {
                 var handshake_buf = std.io.fixedBufferStream(actual[0 .. actual.len - 1]);
                 const handshake_r = handshake_buf.reader();
 
-                switch (try extras.readEnumBig(handshake_r, tls.HandshakeType)) {
+                switch (try handshake_r.readEnum(tls.HandshakeType, .Big)) {
                     else => |val| std.debug.panic("TODO {s}", .{@tagName(val)}),
                 }
             }
