@@ -134,29 +134,9 @@ pub fn testSite(alloc: std.mem.Allocator, hostname: string) !void {
                 const extensions_r = extensions_buf.reader();
                 {
                     while (!extensions_buf.atEnd()) {
-                        const ext_type = try extensions_r.readEnum(tls.ExtensionType, .Big);
-                        const ext_len = try extensions_r.readIntBig(u16);
-                        var ext_buf = try extras.FixedMaxBuffer(128).init(extensions_r, ext_len);
-                        const ext_r = ext_buf.reader();
-                        switch (ext_type) {
-                            .supported_versions => {
-                                for (extras.range(ext_len / 2)) |_| {
-                                    switch (try ext_r.readIntBig(u16)) {
-                                        0x0304 => {}, // TLS 1.3
-                                        else => @panic("TODO"),
-                                    }
-                                }
-                            },
-                            .key_share => {
-                                switch (try extras.readEnumBig(ext_r, tls.NamedGroup)) {
-                                    .x25519 => {
-                                        std.debug.assert(try extras.readExpected(ext_r, &.{ 0x0, 0x20 }));
-                                        server_publickey = try extras.readBytes(ext_r, 32);
-                                    },
-                                    else => @panic("TODO"),
-                                }
-                            },
-                            else => @panic("TODO"),
+                        switch (try tls.ExtensionReal.read(extensions_r)) {
+                            .supported_versions => {},
+                            .key_share => |key| server_publickey = key,
                         }
                     }
                 }
