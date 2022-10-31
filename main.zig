@@ -209,8 +209,18 @@ pub fn testSite(alloc: std.mem.Allocator, hostname: string) !void {
 
                 var handshake_buf = std.io.fixedBufferStream(actual[0 .. actual.len - 1]);
                 const handshake_r = handshake_buf.reader();
+                const handshake_type = try handshake_r.readEnum(tls.HandshakeType, .Big);
+                const handshake_len = try handshake_r.readIntBig(u24);
 
-                switch (try handshake_r.readEnum(tls.HandshakeType, .Big)) {
+                switch (handshake_type) {
+                    .encrypted_extensions => {
+                        while (handshake_buf.pos < handshake_len) {
+                            switch (try tls.ExtensionReal.read(handshake_r)) {
+                                .none => {},
+                                else => unreachable,
+                            }
+                        }
+                    },
                     else => |val| std.debug.panic("TODO {s}", .{@tagName(val)}),
                 }
             }
