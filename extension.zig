@@ -95,6 +95,11 @@ pub const ExtensionReal = union(enum) {
                     else => |ee| @panic(@tagName(ee)),
                 }
             },
+            .truncated_hmac => {
+                // TODO very deprecated
+                try reader.skipBytes(length, .{});
+                return .{ .none = {} };
+            },
             else => |ee| @panic(@tagName(ee)),
         }
     }
