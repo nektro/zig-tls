@@ -195,7 +195,7 @@ pub fn testSite(alloc: std.mem.Allocator, hostname: string) !void {
     inline for (comptime std.meta.declarations(tls.ciphersuites)) |decl| {
         const suite = @field(tls.ciphersuites, decl.name);
         if (suite.tag_int == @enumToInt(server_ciphersuite)) {
-            while (true) {
+            while (true) : (read_sequence_number += 1) {
                 var msg_buf: [1024]u8 = undefined;
 
                 var nonce = calc.server.iv;
