@@ -190,7 +190,7 @@ pub fn testSite(alloc: std.mem.Allocator, hostname: string) !void {
         }
     }
 
-    var certificate: string = undefined;
+    var certificate: tls.CertificateEntry = undefined;
     var verification: tls.CertificateVerify = undefined;
     // loop wrapped records until server handshake finished
     inline for (comptime std.meta.declarations(tls.ciphersuites)) |decl| {

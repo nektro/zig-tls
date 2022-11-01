@@ -4,7 +4,9 @@ const extras = @import("extras");
 const tls = @import("./tls.zig");
 
 pub const CertificateEntry = struct {
-    pub fn read(reader: anytype, alloc: std.mem.Allocator) ![]u8 {
+    bytes: []const u8,
+
+    pub fn read(reader: anytype, alloc: std.mem.Allocator) !CertificateEntry {
         const len = try reader.readIntBig(u24);
         const certificate = try extras.readBytesAlloc(reader, alloc, len);
 
@@ -16,7 +18,9 @@ pub const CertificateEntry = struct {
                 else => |ee| @panic(@tagName(ee)),
             }
         }
-        return certificate;
+        return .{
+            .bytes = certificate,
+        };
     }
 };
 
