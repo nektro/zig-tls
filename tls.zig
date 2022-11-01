@@ -16,20 +16,7 @@ pub const ContentType = enum(u8) {
 pub usingnamespace @import("./handshake.zig");
 pub usingnamespace @import("./extension.zig");
 pub usingnamespace @import("./signature_scheme.zig");
-
-pub const NamedGroup = enum(u16) {
-    secp256r1 = 0x0017,
-    secp384r1 = 0x0018,
-    secp521r1 = 0x0019,
-    x25519 = 0x001D,
-    x448 = 0x001E,
-    ffdhe2048 = 0x0100,
-    ffdhe3072 = 0x0101,
-    ffdhe4096 = 0x0102,
-    ffdhe6144 = 0x0103,
-    ffdhe8192 = 0x0104,
-    _,
-};
+pub usingnamespace @import("./named_group.zig");
 
 // zig fmt: off
 pub const ciphersuites = struct {
@@ -199,7 +186,7 @@ pub fn tryRecordLength(r: anytype, expected_type: ContentType) !u16 {
 pub const Extension = union(enum) {
     supported_versions: void,
     signature_algorithms: []const tls.SignatureScheme,
-    supported_groups: []const NamedGroup,
+    supported_groups: []const tls.NamedGroup,
     key_share: std.crypto.dh.X25519.KeyPair,
     server_name: string,
 
@@ -236,12 +223,12 @@ pub const Extension = union(enum) {
             .supported_groups => |grps| {
                 try w.writeIntBig(u16, @intCast(u16, grps.len) * 2);
                 for (grps) |item| {
-                    try extras.writeEnumBig(w, NamedGroup, item);
+                    try extras.writeEnumBig(w, tls.NamedGroup, item);
                 }
             },
             .key_share => |pair| {
                 try w.writeIntBig(u16, 32 + 2 + 2);
-                try extras.writeEnumBig(w, NamedGroup, .x25519);
+                try extras.writeEnumBig(w, tls.NamedGroup, .x25519);
                 try w.writeIntBig(u16, 32);
                 try w.writeAll(&pair.public_key);
             },
