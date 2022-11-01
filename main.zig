@@ -191,6 +191,7 @@ pub fn testSite(alloc: std.mem.Allocator, hostname: string) !void {
     }
 
     var certificate: string = undefined;
+    var verification: tls.CertificateVerify = undefined;
     // loop wrapped records until server handshake finished
     inline for (comptime std.meta.declarations(tls.ciphersuites)) |decl| {
         const suite = @field(tls.ciphersuites, decl.name);
@@ -236,6 +237,9 @@ pub fn testSite(alloc: std.mem.Allocator, hostname: string) !void {
                             defer arena.deinit();
                             _ = try tls.CertificateEntry.read(certs_r, arena.allocator());
                         }
+                    },
+                    .certificate_verify => {
+                        verification = try tls.CertificateVerify.read(handshake_rr, alloc);
                     },
                     else => |val| std.debug.panic("TODO {s}", .{@tagName(val)}),
                 }

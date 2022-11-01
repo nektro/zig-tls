@@ -19,3 +19,18 @@ pub const CertificateEntry = struct {
         return certificate;
     }
 };
+
+pub const CertificateVerify = struct {
+    scheme: tls.SignatureScheme,
+    signature: string,
+
+    pub fn read(reader: anytype, alloc: std.mem.Allocator) !CertificateVerify {
+        const scheme = try reader.readEnum(tls.SignatureScheme, .Big);
+        const len = try reader.readIntBig(u16);
+        const signature = try extras.readBytesAlloc(reader, alloc, len);
+        return .{
+            .scheme = scheme,
+            .signature = signature,
+        };
+    }
+};
