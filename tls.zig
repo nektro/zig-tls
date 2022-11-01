@@ -61,13 +61,13 @@ fn Ciphersuite(comptime ptag: [2]u8, comptime Hash: type, comptime Aead: type) t
         pub const hmac = std.crypto.auth.hmac.Hmac(hash);
         pub const hkdf = std.crypto.kdf.hkdf.Hkdf(hmac);
 
-        pub fn hkdf_expand(prk: [hmac.mac_length]u8, ctx: []const u8, comptime length: u16) [length]u8 {
+        pub fn hkdf_expand(prk: [hmac.mac_length]u8, ctx: string, comptime length: u16) [length]u8 {
             var out: [length]u8 = undefined;
             hkdf.expand(&out, ctx, prk);
             return out;
         }
 
-        pub fn hkdf_expand_label(secret: [hmac.mac_length]u8, comptime label: []const u8, context: anytype, comptime length: u16) [length]u8 {
+        pub fn hkdf_expand_label(secret: [hmac.mac_length]u8, comptime label: string, context: anytype, comptime length: u16) [length]u8 {
             const labellen = @intCast(u8, label.len + 6);
             const contextlen = @intCast(u8, context.len);
             return hkdf_expand(secret, std.mem.toBytes(@byteSwap(length)) ++ [_]u8{labellen} ++ "tls13 " ++ label ++ [_]u8{contextlen} ++ context, length);
@@ -257,7 +257,7 @@ pub fn write_client_hello(src_w: anytype, client_random: [32]u8, session_id: [32
     }
 }
 
-pub fn readWrappedRecord(comptime ciphersuite: type, r: anytype, buf: []u8, nonce: [ciphersuite.aead.nonce_length]u8, secret_key: [ciphersuite.aead.key_length]u8) ![]const u8 {
+pub fn readWrappedRecord(comptime ciphersuite: type, r: anytype, buf: []u8, nonce: [ciphersuite.aead.nonce_length]u8, secret_key: [ciphersuite.aead.key_length]u8) !string {
     const rec_len = try tryRecordLength(r, .application_data);
     var rec_buf = try extras.FixedMaxBuffer(8192).init(r, rec_len); // TODO get this to be streaming
     const rec_r = rec_buf.reader();
@@ -281,7 +281,7 @@ pub const HelloHasher = struct {
         };
     }
 
-    pub fn update(d: *HelloHasher, b: []const u8) void {
+    pub fn update(d: *HelloHasher, b: string) void {
         inline for (std.meta.fields(HelloHasher)) |field| {
             @field(d, field.name).update(b);
         }
@@ -310,7 +310,7 @@ pub const HelloHasher = struct {
                 return .{ .context = .{ h, w } };
             }
 
-            fn write(self: Ctx, bytes: []const u8) !usize {
+            fn write(self: Ctx, bytes: string) !usize {
                 self[0].update(bytes);
                 return self[1].write(bytes);
             }
