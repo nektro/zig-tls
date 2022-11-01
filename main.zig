@@ -248,7 +248,7 @@ pub fn testSite(alloc: std.mem.Allocator, hostname: string) !void {
 }
 
 fn assertEql(actual: anytype, expected: @TypeOf(actual)) void {
-    if (actual != expected) std.log.err("actual: {any}, expected: {any}", .{ expected, actual });
+    if (actual != expected) std.log.err("actual: {any}, expected: {any}", .{ actual, expected });
     assert(actual == expected);
 }
 
