@@ -137,6 +137,7 @@ pub fn testSite(alloc: std.mem.Allocator, hostname: string) !void {
                         switch (try tls.ExtensionReal.read(extensions_r)) {
                             .supported_versions => {},
                             .key_share => |key| server_publickey = key,
+                            .none => {},
                         }
                     }
                 }
