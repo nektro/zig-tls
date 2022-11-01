@@ -103,18 +103,18 @@ pub fn testSite(alloc: std.mem.Allocator, hostname: string) !void {
 
     std.log.debug("<- server hello", .{});
     const r = stream.reader();
+    const R = @TypeOf(r);
     var server_random: [32]u8 = undefined;
     var server_ciphersuite: tls.CiphersuiteTag = undefined;
     var server_publickey: [32]u8 = undefined;
     { // server hello
-        const FixedBuf = extras.FixedMaxBuffer;
         const handshake_len = try tls.tryRecordLength(r, .handshake);
-        var handshake_buf = try FixedBuf(512).init(r, handshake_len);
-        const handshake_r = tls.HelloHasher.Reader(FixedBuf(512).Reader).init(&hello_hasher, handshake_buf.reader());
+        var handshake_buf = std.io.limitedReader(r, handshake_len);
+        const handshake_r = tls.HelloHasher.Reader(std.io.LimitedReader(R).Reader).init(&hello_hasher, handshake_buf.reader());
         {
             assert(@intToEnum(tls.HandshakeType, try handshake_r.readByte()) == .server_hello);
             const hello_len = try handshake_r.readIntBig(u24);
-            var hello_buf = try FixedBuf(512).init(handshake_r, hello_len);
+            var hello_buf = std.io.limitedReader(handshake_r, hello_len);
             const hello_r = hello_buf.reader();
             {
                 assert(try extras.readExpected(hello_r, &.{ 3, 3 }));
@@ -128,10 +128,10 @@ pub fn testSite(alloc: std.mem.Allocator, hostname: string) !void {
                 assert(try hello_r.readByte() == 0); // no compression
 
                 const extensions_len = try hello_r.readIntBig(u16);
-                var extensions_buf = try FixedBuf(512).init(hello_r, extensions_len);
+                var extensions_buf = std.io.limitedReader(hello_r, extensions_len);
                 const extensions_r = extensions_buf.reader();
                 {
-                    while (!extensions_buf.atEnd()) {
+                    while (extensions_buf.bytes_left > 0) {
                         switch (try tls.ExtensionReal.read(extensions_r)) {
                             .supported_versions => {},
                             .key_share => |key| server_publickey = key,
@@ -150,7 +150,7 @@ pub fn testSite(alloc: std.mem.Allocator, hostname: string) !void {
 
     { // server change cipher spec
         const rec_len = try tls.tryRecordLength(r, .change_cipher_spec);
-        var rec_buf = try extras.FixedMaxBuffer(8).init(r, rec_len);
+        var rec_buf = std.io.limitedReader(r, rec_len);
         const rec_r = rec_buf.reader();
         assertEql(rec_len, 1);
         assertEql(try rec_r.readByte(), 1);
