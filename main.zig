@@ -211,11 +211,13 @@ pub fn testSite(alloc: std.mem.Allocator, hostname: string) !void {
                 const handshake_type = try handshake_r.readEnum(tls.HandshakeType, .Big);
                 std.log.debug("<- wrapped record: {s}", .{@tagName(handshake_type)});
                 const handshake_len = try handshake_r.readIntBig(u24);
+                var handshake_lim = std.io.limitedReader(handshake_r, handshake_len);
+                const handshake_rr = handshake_lim.reader();
 
                 switch (handshake_type) {
                     .encrypted_extensions => {
                         while (handshake_buf.pos < handshake_len) {
-                            switch (try tls.ExtensionReal.read(handshake_r)) {
+                            switch (try tls.ExtensionReal.read(handshake_rr)) {
                                 .none => {},
                                 else => unreachable,
                             }
