@@ -239,6 +239,9 @@ pub fn testSite(alloc: std.mem.Allocator, hostname: string) !void {
                     },
                     else => |val| std.debug.panic("TODO {s}", .{@tagName(val)}),
                 }
+                while (handshake_lim.bytes_left > 0) {
+                    assertEql(try handshake_rr.readByte(), 0);
+                }
             }
         }
     }
