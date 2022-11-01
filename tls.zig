@@ -18,6 +18,7 @@ pub usingnamespace @import("./extension.zig");
 pub usingnamespace @import("./signature_scheme.zig");
 pub usingnamespace @import("./named_group.zig");
 pub usingnamespace @import("./certificate.zig");
+pub usingnamespace @import("./alert.zig");
 
 // zig fmt: off
 pub const ciphersuites = struct {
@@ -110,36 +111,6 @@ pub const CiphersuiteUnion = blk: {
     }));
 };
 
-pub const AlertDescription = enum(u8) {
-    close_notify = 0,
-    unexpected_message = 10,
-    bad_record_mac = 20,
-    record_overflow = 22,
-    handshake_failure = 40,
-    bad_certificate = 42,
-    unsupported_certificate = 43,
-    certificate_revoked = 44,
-    certificate_expired = 45,
-    certificate_unknown = 46,
-    illegal_parameter = 47,
-    unknown_ca = 48,
-    access_denied = 49,
-    decode_error = 50,
-    decrypt_error = 51,
-    protocol_version = 70,
-    insufficient_security = 71,
-    internal_error = 80,
-    inappropriate_fallback = 86,
-    user_canceled = 90,
-    missing_extension = 109,
-    unsupported_extension = 110,
-    unrecognized_name = 112,
-    bad_certificate_status_response = 113,
-    unknown_psk_identity = 115,
-    certificate_required = 116,
-    no_application_protocol = 120,
-};
-
 pub fn tryRecordLength(r: anytype, expected_type: ContentType) !u16 {
     const actual = @intToEnum(ContentType, try r.readByte());
     if (!try extras.readExpected(r, &.{ 3, 3 })) return error.ServerInvalidVersion;
@@ -147,35 +118,35 @@ pub fn tryRecordLength(r: anytype, expected_type: ContentType) !u16 {
 
     if (actual == .alert) {
         if (record_len != 2) return error.ServerMalformedResponse;
-        _ = try r.readByte();
-        return switch (try r.readByte()) {
-            0 => error.alert_close_notify,
-            10 => error.alert_unexpected_message,
-            20 => error.alert_bad_record_mac,
-            22 => error.alert_record_overflow,
-            40 => error.alert_handshake_failure,
-            42 => error.alert_bad_certificate,
-            43 => error.alert_unsupported_certificate,
-            44 => error.alert_certificate_revoked,
-            45 => error.alert_certificate_expired,
-            46 => error.alert_certificate_unknown,
-            47 => error.alert_illegal_parameter,
-            48 => error.alert_unknown_ca,
-            49 => error.alert_access_denied,
-            50 => error.alert_decode_error,
-            51 => error.alert_decrypt_error,
-            70 => error.alert_protocol_version,
-            71 => error.alert_insufficient_security,
-            80 => error.alert_internal_error,
-            86 => error.alert_inappropriate_fallback,
-            90 => error.alert_user_canceled,
-            109 => error.alert_missing_extension,
-            110 => error.alert_unsupported_extension,
-            112 => error.alert_unrecognized_name,
-            113 => error.alert_bad_certificate_status_response,
-            115 => error.alert_unknown_psk_identity,
-            116 => error.alert_certificate_required,
-            120 => error.alert_no_application_protocol,
+        const alert = try tls.Alert.read(r);
+        return switch (alert.description) {
+            .close_notify => error.alert_close_notify,
+            .unexpected_message => error.alert_unexpected_message,
+            .bad_record_mac => error.alert_bad_record_mac,
+            .record_overflow => error.alert_record_overflow,
+            .handshake_failure => error.alert_handshake_failure,
+            .bad_certificate => error.alert_bad_certificate,
+            .unsupported_certificate => error.alert_unsupported_certificate,
+            .certificate_revoked => error.alert_certificate_revoked,
+            .certificate_expired => error.alert_certificate_expired,
+            .certificate_unknown => error.alert_certificate_unknown,
+            .illegal_parameter => error.alert_illegal_parameter,
+            .unknown_ca => error.alert_unknown_ca,
+            .access_denied => error.alert_access_denied,
+            .decode_error => error.alert_decode_error,
+            .decrypt_error => error.alert_decrypt_error,
+            .protocol_version => error.alert_protocol_version,
+            .insufficient_security => error.alert_insufficient_security,
+            .internal_error => error.alert_internal_error,
+            .inappropriate_fallback => error.alert_inappropriate_fallback,
+            .user_canceled => error.alert_user_canceled,
+            .missing_extension => error.alert_missing_extension,
+            .unsupported_extension => error.alert_unsupported_extension,
+            .unrecognized_name => error.alert_unrecognized_name,
+            .bad_certificate_status_response => error.alert_bad_certificate_status_response,
+            .unknown_psk_identity => error.alert_unknown_psk_identity,
+            .certificate_required => error.alert_certificate_required,
+            .no_application_protocol => error.alert_no_application_protocol,
             else => unreachable,
         };
     }
