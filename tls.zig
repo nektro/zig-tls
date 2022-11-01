@@ -17,6 +17,7 @@ pub usingnamespace @import("./handshake.zig");
 pub usingnamespace @import("./extension.zig");
 pub usingnamespace @import("./signature_scheme.zig");
 pub usingnamespace @import("./named_group.zig");
+pub usingnamespace @import("./certificate.zig");
 
 // zig fmt: off
 pub const ciphersuites = struct {

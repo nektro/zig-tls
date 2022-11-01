@@ -190,6 +190,7 @@ pub fn testSite(alloc: std.mem.Allocator, hostname: string) !void {
         }
     }
 
+    var certificate: string = undefined;
     // loop wrapped records until server handshake finished
     inline for (comptime std.meta.declarations(tls.ciphersuites)) |decl| {
         const suite = @field(tls.ciphersuites, decl.name);
@@ -221,6 +222,19 @@ pub fn testSite(alloc: std.mem.Allocator, hostname: string) !void {
                                 .none => {},
                                 else => unreachable,
                             }
+                        }
+                    },
+                    .certificate => {
+                        assert(try handshake_rr.readByte() == 0); // Request Context is empty since this certificate was not sent in response to a Certificate Request.
+                        const certs_len = try handshake_rr.readIntBig(u24);
+                        var certs_lim = std.io.limitedReader(handshake_rr, certs_len);
+                        const certs_r = certs_lim.reader();
+                        certificate = try tls.CertificateEntry.read(certs_r, alloc);
+
+                        while (certs_lim.bytes_left > 0) {
+                            var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+                            defer arena.deinit();
+                            _ = try tls.CertificateEntry.read(certs_r, arena.allocator());
                         }
                     },
                     else => |val| std.debug.panic("TODO {s}", .{@tagName(val)}),
