@@ -15,26 +15,7 @@ pub const ContentType = enum(u8) {
 
 pub usingnamespace @import("./handshake.zig");
 pub usingnamespace @import("./extension.zig");
-
-pub const SignatureScheme = enum(u16) {
-    rsa_pkcs1_sha256 = 0x0401,
-    rsa_pkcs1_sha384 = 0x0501,
-    rsa_pkcs1_sha512 = 0x0601,
-    ecdsa_secp256r1_sha256 = 0x0403,
-    ecdsa_secp384r1_sha384 = 0x0503,
-    ecdsa_secp521r1_sha512 = 0x0603,
-    rsa_pss_rsae_sha256 = 0x0804,
-    rsa_pss_rsae_sha384 = 0x0805,
-    rsa_pss_rsae_sha512 = 0x0806,
-    ed25519 = 0x0807,
-    ed448 = 0x0808,
-    rsa_pss_pss_sha256 = 0x0809,
-    rsa_pss_pss_sha384 = 0x080a,
-    rsa_pss_pss_sha512 = 0x080b,
-    rsa_pkcs1_sha1 = 0x0201,
-    ecdsa_sha1 = 0x0203,
-    _,
-};
+pub usingnamespace @import("./signature_scheme.zig");
 
 pub const NamedGroup = enum(u16) {
     secp256r1 = 0x0017,
@@ -217,7 +198,7 @@ pub fn tryRecordLength(r: anytype, expected_type: ContentType) !u16 {
 // pub const Extension = union(ExtensionType) {
 pub const Extension = union(enum) {
     supported_versions: void,
-    signature_algorithms: []const SignatureScheme,
+    signature_algorithms: []const tls.SignatureScheme,
     supported_groups: []const NamedGroup,
     key_share: std.crypto.dh.X25519.KeyPair,
     server_name: string,
@@ -249,7 +230,7 @@ pub const Extension = union(enum) {
             .signature_algorithms => |algs| {
                 try w.writeIntBig(u16, @intCast(u16, algs.len) * 2);
                 for (algs) |item| {
-                    try extras.writeEnumBig(w, SignatureScheme, item);
+                    try extras.writeEnumBig(w, tls.SignatureScheme, item);
                 }
             },
             .supported_groups => |grps| {
