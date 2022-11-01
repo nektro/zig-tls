@@ -287,7 +287,7 @@ pub fn write_client_hello(src_w: anytype, client_random: [32]u8, session_id: [32
 
 pub fn readWrappedRecord(comptime ciphersuite: type, r: anytype, buf: []u8, nonce: [ciphersuite.aead.nonce_length]u8, secret_key: [ciphersuite.aead.key_length]u8) ![]const u8 {
     const rec_len = try tryRecordLength(r, .application_data);
-    var rec_buf = try extras.FixedMaxBuffer(1024).init(r, rec_len);
+    var rec_buf = try extras.FixedMaxBuffer(8192).init(r, rec_len); // TODO get this to be streaming
     const rec_r = rec_buf.reader();
 
     const encrypted_len = rec_len - ciphersuite.aead.tag_length;
