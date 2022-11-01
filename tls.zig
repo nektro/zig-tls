@@ -331,11 +331,16 @@ pub const HelloHasher = struct {
     pub fn final(d: *HelloHasher, comptime H: type) [H.digest_length]u8 {
         var out: [H.digest_length]u8 = undefined;
         switch (H) {
-            Sha256 => d.sha256.final(&out),
-            Sha384 => d.sha384.final(&out),
+            Sha256 => serialize(H, d.sha256, &out),
+            Sha384 => serialize(H, d.sha384, &out),
             else => unreachable,
         }
         return out;
+    }
+
+    fn serialize(comptime T: type, h: T, out: *[T.digest_length]u8) void {
+        var copy = h;
+        copy.final(out);
     }
 
     pub fn Writer(comptime W: type) type {
