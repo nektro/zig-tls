@@ -1,5 +1,4 @@
 const std = @import("std");
-const string = []const u8;
 const extras = @import("extras");
 const tls = @import("./tls.zig");
 

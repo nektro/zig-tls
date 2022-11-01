@@ -3,8 +3,6 @@ const string = []const u8;
 const extras = @import("extras");
 const tls = @import("tls");
 const assert = std.debug.assert;
-const Sha256 = std.crypto.hash.sha2.Sha256;
-const Sha384 = std.crypto.hash.sha2.Sha384;
 
 // zig fmt: off
 // test { try testSite(std.testing.allocator, "tls13.xargs.org"); }

@@ -1,5 +1,4 @@
 const std = @import("std");
-const string = []const u8;
 const extras = @import("extras");
 
 pub const HandshakeType = enum(u8) {
