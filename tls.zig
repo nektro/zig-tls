@@ -22,11 +22,11 @@ pub usingnamespace @import("./alert.zig");
 
 // zig fmt: off
 pub const ciphersuites = struct {
-    // pub const TLS_AES_128_GCM_SHA256                       = Ciphersuite(.{0x13,0x01}, Sha256, std.crypto.aead.aes_gcm.Aes128Gcm);
-    pub const TLS_AES_256_GCM_SHA384                       = Ciphersuite(.{0x13,0x02}, Sha384, std.crypto.aead.aes_gcm.Aes256Gcm);
-    // pub const TLS_CHACHA20_POLY1305_SHA256                 = Ciphersuite(.{0x13,0x03}, Sha256, std.crypto.aead.chacha_poly.ChaCha20Poly1305);
-//  pub const TLS_AES_128_CCM_SHA256                       = Ciphersuite(.{0x13,0x04}, Sha256, std.crypto.aead.aes_ccm.Aes128Ccm);
-//  pub const TLS_AES_128_CCM_8_SHA256                     = Ciphersuite(.{0x13,0x05}, Sha256, std.crypto.aead.aes_ccm.Aes128Ccm8);
+//  pub const TLS_AES_128_GCM_SHA256                        = Ciphersuite(.{0x13,0x01}, Sha256, std.crypto.aead.aes_gcm.Aes128Gcm);
+    pub const TLS_AES_256_GCM_SHA384                        = Ciphersuite(.{0x13,0x02}, Sha384, std.crypto.aead.aes_gcm.Aes256Gcm);
+//  pub const TLS_CHACHA20_POLY1305_SHA256                  = Ciphersuite(.{0x13,0x03}, Sha256, std.crypto.aead.chacha_poly.ChaCha20Poly1305);
+//  pub const TLS_AES_128_CCM_SHA256                        = Ciphersuite(.{0x13,0x04}, Sha256, std.crypto.aead.aes_ccm.Aes128Ccm);
+//  pub const TLS_AES_128_CCM_8_SHA256                      = Ciphersuite(.{0x13,0x05}, Sha256, std.crypto.aead.aes_ccm.Aes128Ccm8);
 
 //  pub const TLS_DHE_RSA_WITH_AES_128_GCM_SHA256           = Ciphersuite(.{0x00,0x9E}, Sha256, void);
 //  pub const TLS_DHE_RSA_WITH_AES_256_GCM_SHA384           = Ciphersuite(.{0x00,0x9F}, Sha384, void);
