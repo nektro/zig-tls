@@ -248,10 +248,22 @@ pub fn testSite(alloc: std.mem.Allocator, hostname: string) !void {
                             else => |ee| @panic(@tagName(ee)),
                         }
                     },
+                    .finished => {
+                        const finished_key = suite.hkdf_expand_label(calc.client.secret, "finished", "", suite.hash.digest_length);
+                        const finished_hash = hello_hasher.final(suite.hash);
+                        const verify_data = suite.do_hmac(&finished_key, &finished_hash);
+                        const finished_data = handshake_buf.buffer[handshake_buf.pos..];
+                        std.log.debug("fin expected: {d}", .{verify_data});
+                        std.log.debug("fin   actual: {d}", .{finished_data});
+                        try std.testing.expectEqualSlices(u8, finished_data, &verify_data);
+                    },
                     else => |val| std.debug.panic("TODO {s}", .{@tagName(val)}),
                 }
                 while (handshake_lim.bytes_left > 0) {
                     assertEql(try handshake_rr.readByte(), 0);
+                }
+                if (handshake_type == .finished) {
+                    break;
                 }
             }
         }
