@@ -115,9 +115,13 @@ pub fn tryRecordLength(r: anytype, expected_type: ContentType) !u16 {
     const actual = @intToEnum(ContentType, try r.readByte());
     if (!try extras.readExpected(r, &.{ 3, 3 })) return error.ServerInvalidVersion;
     const record_len = try r.readIntBig(u16);
+    try checkForAlert(actual, r);
+    if (actual != expected_type) return error.ServerMalformedResponse;
+    return record_len;
+}
 
-    if (actual == .alert) {
-        if (record_len != 2) return error.ServerMalformedResponse;
+pub fn checkForAlert(ty: tls.ContentType, r: anytype) !void {
+    if (ty == .alert) {
         const alert = try tls.Alert.read(r);
         return switch (alert.description) {
             .close_notify => error.alert_close_notify,
@@ -150,8 +154,6 @@ pub fn tryRecordLength(r: anytype, expected_type: ContentType) !u16 {
             else => unreachable,
         };
     }
-    if (actual != expected_type) return error.ServerMalformedResponse;
-    return record_len;
 }
 
 // pub const Extension = union(ExtensionType) {

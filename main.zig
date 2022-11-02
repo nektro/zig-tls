@@ -205,10 +205,12 @@ pub fn testSite(alloc: std.mem.Allocator, hostname: string) !void {
                 }
 
                 const actual = try tls.readWrappedRecord(suite, r, &msg_buf, nonce, calc.server.key);
-                assert(@intToEnum(tls.ContentType, actual[actual.len - 1]) == .handshake);
-
+                const content_type = @intToEnum(tls.ContentType, actual[actual.len - 1]);
                 var handshake_buf = std.io.fixedBufferStream(actual[0 .. actual.len - 1]);
                 const handshake_r = handshake_buf.reader();
+                try tls.checkForAlert(content_type, handshake_r);
+                assert(content_type == .handshake);
+
                 const handshake_type = try handshake_r.readEnum(tls.HandshakeType, .Big);
                 std.log.debug("<- wrapped record: {s}", .{@tagName(handshake_type)});
                 const handshake_len = try handshake_r.readIntBig(u24);
