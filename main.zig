@@ -230,11 +230,14 @@ pub fn testSite(alloc: std.mem.Allocator, hostname: string) !void {
                         var certs_lim = std.io.limitedReader(handshake_rr, certs_len);
                         const certs_r = certs_lim.reader();
                         certificate = try tls.CertificateEntry.read(certs_r, alloc);
+                        std.log.debug("cert {d}", .{certificate.bytes.len});
+                        // TODO most sites seem to send 3 certs, figure out how we know which one is part of certificate_verify
 
                         while (certs_lim.bytes_left > 0) {
                             var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
                             defer arena.deinit();
-                            _ = try tls.CertificateEntry.read(certs_r, arena.allocator());
+                            const c2 = try tls.CertificateEntry.read(certs_r, arena.allocator());
+                            std.log.debug("skipped cert {d}", .{c2.bytes.len});
                         }
                     },
                     .certificate_verify => {
