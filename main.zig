@@ -44,7 +44,7 @@ pub fn main() !void {
     var allocator = std.heap.GeneralPurposeAllocator(.{}){};
     const alloc = allocator.allocator();
 
-    try testSite(alloc, "tls13.xargs.org");
+    try testSite(alloc, "ziglang.org");
 }
 
 pub fn testSite(alloc: std.mem.Allocator, hostname: string) !void {
