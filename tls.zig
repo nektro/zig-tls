@@ -72,6 +72,12 @@ fn Ciphersuite(comptime ptag: [2]u8, comptime Hash: type, comptime Aead: type) t
             const contextlen = @intCast(u8, context.len);
             return hkdf_expand(secret, std.mem.toBytes(@byteSwap(length)) ++ [_]u8{labellen} ++ "tls13 " ++ label ++ [_]u8{contextlen} ++ context, length);
         }
+
+        pub fn do_hmac(key: string, msg: string) [hmac.mac_length]u8 {
+            var buf: [hmac.mac_length]u8 = undefined;
+            hmac.create(&buf, msg, key);
+            return buf;
+        }
     };
 }
 
